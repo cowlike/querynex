@@ -2,7 +2,7 @@ package jk.querynex
 
 class Main {
 	static showServer(server) {
-		println "${server?.hostname}:"
+		println "\n${new Date()}: ${server?.hostname}:"
 		println "\tmap [${server?.map}], max players [${server?.maxPlayers}]"
 		
 		println "\tplayer list:"
@@ -10,13 +10,31 @@ class Main {
 			println "\t\t${player.isSpec()? '-': '+'}${player.isBot()? '(bot)': ''} ${player.name}" }
 	}
 	
-	static watch(query, url) {
-		while (!query.getInfo(url)?.playerCount) {
-			print "."
-			Thread.sleep(60000)
+	static watchForever(query, url) {
+		def safeVal = { defVal, clos ->
+			def val = defVal
+			try {val = clos()} catch(e) {println e.message}
+			val
 		}
-		println ''		
-		showServer query.getStatus(url)
+		
+		def EMPTY = "empty"
+		def USERS = "users"		
+		def actions = [
+			(EMPTY) : [
+				"foundUsers" : {showServer safeVal(null, {query.getStatus url}); USERS},
+				"none" : {print "."; EMPTY}],
+			(USERS) : [
+				"foundUsers" : {print "+"; USERS},
+				"none" : {println "\n${new Date()}: $url is empty"; EMPTY}]
+		]
+			
+		for (def cur = EMPTY; true; ) {
+			if (System.in.available() > 0)
+				break;
+			def evt = safeVal(-1, {query.getInfo(url)?.playerCount}) > 0 ? "foundUsers" : "none"
+			cur = actions[cur][evt]()
+			sleep(60000)
+		}
 	}
 	
 	static main(args) {
@@ -29,6 +47,6 @@ class Main {
 			}
 		}
 		else
-			watch(query, urls.first())
+			watchForever(query, urls.first())
 	}
 }
