@@ -1,6 +1,13 @@
 package jk.querynex
 
 class Main {
+	class MyAuth extends Authenticator {}
+	
+	static mailer = new MailSender(
+		'to':['myemailaccount@sample.com'],
+		'from':'nexbot@sample.com',
+		'subject':'test subject line')
+	
 	static showServer(server) {
 		println "\n${new Date()}: ${server?.hostname}:"
 		println "\tmap [${server?.map}], max players [${server?.maxPlayers}]"
@@ -17,15 +24,28 @@ class Main {
 			val
 		}
 		
+		def transitionToEmpty = {
+			def msg = "${new Date()}: $url is empty"  
+			println "\n$msg"
+			//mailer.content = msg
+			//mailer.send()
+		}
+		
+		def transitionToPopulated = {
+			showServer safeVal(null, {query.getStatus url})
+			//mailer.content = "server $url is populated"
+			//mailer.send()
+		}
+		
 		def EMPTY = "empty"
 		def USERS = "users"		
 		def actions = [
 			(EMPTY) : [
-				"foundUsers" : {showServer safeVal(null, {query.getStatus url}); USERS},
+				"foundUsers" : {transitionToPopulated(); USERS},
 				"none" : {print "."; EMPTY}],
 			(USERS) : [
 				"foundUsers" : {print "+"; USERS},
-				"none" : {println "\n${new Date()}: $url is empty"; EMPTY}]
+				"none" : {transitionToEmpty(); EMPTY}]
 		]
 			
 		for (def cur = EMPTY; true; ) {
