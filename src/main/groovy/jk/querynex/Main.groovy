@@ -25,6 +25,7 @@ class Main {
 		}
 		
 		def transitionToEmpty = {
+			java.awt.Toolkit.defaultToolkit.beep()
 			def msg = "${new Date()}: $url is empty"  
 			println "\n$msg"
 			//mailer.content = msg
@@ -32,6 +33,7 @@ class Main {
 		}
 		
 		def transitionToPopulated = {
+			java.awt.Toolkit.defaultToolkit.beep()
 			showServer safeVal(null, {query.getStatus url})
 			//mailer.content = "server $url is populated"
 			//mailer.send()
