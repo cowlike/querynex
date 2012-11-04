@@ -6,7 +6,7 @@ class Main {
 	static mailer = new MailSender(
 		'to':['myemailaccount@sample.com'],
 		'from':'nexbot@sample.com',
-		'subject':'test subject line')
+		'subject':'Nex update')
 	
 	static showServer(server) {
 		println "\n${new Date()}: ${server?.hostname}:"
@@ -37,6 +37,12 @@ class Main {
 			//mailer.send()
 		}
 		
+		def populated = {
+			//print '+'
+			println safeVal(null, {query.getStatus url})?.playerList?.
+				collect {"${it.isSpec()? '-': '+'}${it.name}"}
+		}
+		
 		def EMPTY = "empty"
 		def USERS = "users"		
 		def actions = [
@@ -44,7 +50,7 @@ class Main {
 				"foundUsers" : {transitionToPopulated(); USERS},
 				"none" : {print "."; EMPTY}],
 			(USERS) : [
-				"foundUsers" : {print "+"; USERS},
+				"foundUsers" : {populated(); USERS},
 				"none" : {transitionToEmpty(); EMPTY}]
 		]
 			

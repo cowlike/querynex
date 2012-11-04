@@ -7,6 +7,8 @@ import javax.activation.*
 class MyAuth extends Authenticator {}
 
 class MailSender {
+	String user = null
+	String password = null
 	String host = 'smtp.gmail.com'
 	String from = 'nexbot@sample.com'
 	List to = []
@@ -15,7 +17,7 @@ class MailSender {
 	String encoding = 'UTF-8'
 	String type = 'text/plain'
 	String subject = 'test subject line'
-	def auth = ['getPasswordAuthentication': { new PasswordAuthentication('user', 'password') }] as MyAuth
+	def auth = ['getPasswordAuthentication': { new PasswordAuthentication(user, password) }] as MyAuth
 	def msgSend = { Transport.send(it) }
 	
 	InternetAddress[] mkAddress(List list)  {
@@ -30,7 +32,7 @@ class MailSender {
 		'mail.smtp.port':'587'] as Properties
 		
 	def init = {
-		def session = Session.getInstance(mailProps, auth)
+		def session = Session.getInstance(mailProps, user ? auth : null)
 		def msg = new MimeMessage(session)
 		msg.from = new InternetAddress(from)
 		msg.setRecipients(Message.RecipientType.TO, mkAddress(to))
