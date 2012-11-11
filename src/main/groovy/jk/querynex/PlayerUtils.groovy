@@ -59,9 +59,9 @@ public final class PlayerUtils {
     private static String getDecSpan(String match) {
         return DEC_SPANS[(int)match.charAt(1) - (int)'0'.charAt(0)];
     }
-    private static final Pattern allColors = Pattern.compile("\\^\\d|\\^x(\\p{XDigit}){3}");
-    private static final Pattern decColors = Pattern.compile("\\^(\\d)");
-    private static final Pattern hexColors = Pattern.compile("\\^x(\\p{XDigit})(\\p{XDigit})(\\p{XDigit})");
+    private static final allColors = ~/\^\d|\^x(\p{XDigit}){3}/
+    private static final decColors = ~/\^(\d)/
+	private static final hexColors = ~/\^x(\p{XDigit})(\p{XDigit})(\p{XDigit})/
 
     /**
      * Converts xonotic color codes to HTML font color tags.
@@ -69,26 +69,27 @@ public final class PlayerUtils {
      * @return HTML-encoded string.
      */
     protected static String xonoticColorsToHtml(String string) {
-        String hexDecodedString = hexColors.matcher(string).replaceAll('<span style=\'color:#$1$1$2$2$3$3\'>');
+		String hexDecodedString = string.replaceAll(hexColors, '<span style=\'color:#$1$1$2$2$3$3\'>');
+		
         Matcher matcher = decColors.matcher(hexDecodedString);
         StringBuffer htmlName = new StringBuffer();
         while (matcher.find()) {
             matcher.appendReplacement(htmlName, getDecSpan(matcher.group()));
         }
+		
         // No decimal colors found
         if (htmlName.length() == 0) {
             htmlName.append(hexDecodedString);
         }
+		
         // Close span tag for each color match found
-        matcher = allColors.matcher(string);
-        while (matcher.find()) {
-            htmlName.append("</span>");
-        }
+		string.eachMatch(allColors) { htmlName.append('</span>') }
+		
         return htmlName.toString();
     }
 
     protected static String decolorName(final String name) {
-        return allColors.matcher(name).replaceAll("");
+		name.replaceAll(allColors, '')
     }
 
     /**

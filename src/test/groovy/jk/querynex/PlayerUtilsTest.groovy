@@ -5,8 +5,8 @@ import groovy.util.GroovyTestCase;
 class PlayerUtilsTest extends GroovyTestCase {
 
 	public void testXonoticColorsToHtml() {
-		assertEquals "<span style='color:#aaaaaa'>Pank<span style='color:#ffff00'>y</span></span>",
-			PlayerUtils.xonoticColorsToHtml('^xaaaPank^xff0y')
+		assertEquals "<span style='color:#aaaaaa'>Pan<span style='color:#666666'></span></span></span>",
+			PlayerUtils.xonoticColorsToHtml('^xaaaPan^9k^xff0y')
 	}
 
 	public void testDecolorName() {
