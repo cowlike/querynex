@@ -24,6 +24,7 @@ class Main {
 			val
 		}
 		
+		//The last person left the server
 		def transitionToEmpty = {
 			java.awt.Toolkit.defaultToolkit.beep()
 			def msg = "${new Date()}: $url is empty"  
@@ -32,6 +33,7 @@ class Main {
 			//mailer.send()
 		}
 		
+		//Someone entered the empty server
 		def transitionToPopulated = {
 			java.awt.Toolkit.defaultToolkit.beep()
 			showServer safeVal(null, {query.getStatus url})
@@ -39,10 +41,16 @@ class Main {
 			//mailer.send()
 		}
 		
+		//Server remains populated
 		def populated = {
 			//print '+'
 			println safeVal(null, {query.getStatus url})?.playerList?.
 				collect {"${it.isSpec()? '-': '+'}${it.name}"}
+		}
+		
+		//Server remains empty
+		def empty = {
+			print "."
 		}
 		
 		def EMPTY = "empty"
@@ -50,15 +58,13 @@ class Main {
 		def actions = [
 			(EMPTY) : [
 				"foundUsers" : {transitionToPopulated(); USERS},
-				"none" : {print "."; EMPTY}],
+				"none" : {empty(); EMPTY}],
 			(USERS) : [
 				"foundUsers" : {populated(); USERS},
 				"none" : {transitionToEmpty(); EMPTY}]
 		]
 			
 		for (def cur = EMPTY; true; ) {
-			if (System.in.available() > 0)
-				break;
 			def evt = safeVal(-1, {query.getInfo(url)?.playerCount}) > 0 ? "foundUsers" : "none"
 			cur = actions[cur][evt]()
 			sleep(60000)
@@ -74,7 +80,11 @@ class Main {
 				try {showServer query.getStatus(it); println ''} catch(e) {print "${e.message}\n\n"} 
 			}
 		}
-		else
-			watchForever(query, urls.first())
+		else {
+			println "hit <enter> key to terminate"
+			Thread.startDaemon { watchForever(query, urls.first()) }
+			System.in.read();
+			println "done"
+		}
 	}
 }

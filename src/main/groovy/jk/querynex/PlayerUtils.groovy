@@ -100,13 +100,6 @@ public final class PlayerUtils {
      * @return Player's name converted to ascii text
      */
     protected static String sanitizeName(final String name) {
-        final StringBuilder builder = new StringBuilder();
-        for (char c : name.toCharArray()) {
-            if (c >= '\ue000' && c <= '\ue0ff') {
-                c = FONT_TABLE[c - '\ue000'];
-            }
-            builder.append(c);
-        }
-        return builder.toString();
+		decolorName(name).toCharArray().collect { FONT_TABLE[it as int] }.join ''
     }
 }

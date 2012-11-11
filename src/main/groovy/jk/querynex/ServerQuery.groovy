@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  */
 public class ServerQuery extends AbstractQuery {
 
-	protected String encoding = 'UTF-8'
+	protected String encoding = 'ISO-8859-1'
 	
     /**
      * Creates a Server containing all of the server info,
