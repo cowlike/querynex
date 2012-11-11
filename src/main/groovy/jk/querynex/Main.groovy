@@ -43,7 +43,6 @@ class Main {
 		
 		//Server remains populated
 		def populated = {
-			//print '+'
 			println safeVal(null, {query.getStatus url})?.playerList?.
 				collect {"${it.isSpec()? '-': '+'}${it.name}"}
 		}
@@ -72,7 +71,26 @@ class Main {
 	}
 	
 	static main(args) {
-		def urls = args ? new File(args[0]).readLines() : ['198.23.132.34:26000']
+		def cli = new CliBuilder(usage:'Possible options')
+		cli.h('This screen')
+		cli.f(args:1, argName:'filename', 'Read a file of lines with ip:port')
+		cli.s(args:1, argName:'ip:port', 'Specify the server ip:port')		
+		def options = cli.parse(args)
+		
+		if (options.h) {
+			cli.usage()
+			System.exit(0)
+		}
+		
+		def urls = ['198.23.132.34:26000']
+		
+		if (options.f) {
+			urls = new File(options.f).readLines()
+		}
+		else if (options.s) {
+			urls = [options.s]
+		}
+		
 		def query = new ServerQuery()
 		
 		if (urls.size() > 1) {
