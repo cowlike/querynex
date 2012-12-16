@@ -24,7 +24,7 @@ class Main {
 		}
 	}
 
-	static iterations(n) {
+	static iterations(int n) {
 		{ -> n-- > 0 }
 	}
 		
@@ -101,6 +101,7 @@ class Main {
 		}
 
 		def waitForever = options.w
+		def iters = options.i ? options.i as int : 1
 		def urls
 
 		if (options.f) {
@@ -111,18 +112,20 @@ class Main {
 		}
 		else {
 			urls = ['127.0.0.1:26000']
-		}		
+		}
 
 		def query = new ServerQuery()
-		def loops = waitForever ? {true} : iterations(options.i ? options.i : 1)
-
-		def threadList = urls.inject([]) {lst, url -> lst << Thread.startDaemon{ watch(query, url, loops) }; lst}
+		def threadList = urls.inject([]) {lst, url -> 
+			lst << Thread.startDaemon { watch(query, url, waitForever ? {true} : iterations(iters)) }; 
+			lst
+		}
+		
 		if (waitForever) {
 			println "hit <enter> key to terminate"
 			System.in.read();
 		}
 		else {
-			println "waiting for server queries"
+			println "waiting for $iters server quer${iters > 1 ? 'ies' : 'y'}"
 			threadList.each { it.join() }
 		}
 		println "done"
