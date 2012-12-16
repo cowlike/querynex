@@ -20,10 +20,11 @@ usage: Possible options
 
 Passing no arguments will query 127.0.0.1:26000 a single time.
 
-If passing a file, the format is <ip>:<port>. Empty lines or lines starting with '#' are ignored. 
-
-Example:
+Example for file input:
 <pre>
+# format is ip:port
+# Empty lines or lines starting with '#' are ignored.
+
 # 213.141.136.246:26003
 # 94.23.20.72:26000
 
