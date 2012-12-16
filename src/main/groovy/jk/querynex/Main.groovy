@@ -1,108 +1,130 @@
 package jk.querynex
 
 class Main {
-	class MyAuth extends Authenticator {}
-	
+	class MyAuth extends Authenticator {
+
+	}
+
+	static showPlayer(player) {
+		"${player.isSpec()? '-': '+'}${player.isBot()? '(bot)': ''}${player.name}"
+	}
+
 	static mailer = new MailSender(
-		'to':['myemailaccount@sample.com'],
-		'from':'nexbot@sample.com',
-		'subject':'Nex update')
-	
+	'to':['myemailaccount@sample.com'],
+	'from':'nexbot@sample.com',
+	'subject':'Nex update')
+
 	static showServer(server) {
 		println "\n${new Date()}: ${server?.hostname}:"
 		println "\tmap [${server?.map}], max players [${server?.maxPlayers}]"
-		
+
 		println "\tplayer list:"
-		server?.playerList.each { player ->
-			println "\t\t${player.isSpec()? '-': '+'}${player.isBot()? '(bot)': ''} ${player.name}" }
+		server?.playerList.each {
+			println "\t\t${showPlayer(it)}"
+		}
 	}
-	
-	static watchForever(query, url) {
-		def safeVal = { defVal, clos ->
+
+	static iterations(n) {
+		{ -> n-- > 0 }
+	}
+		
+	static watch(query, url, loopCondition) {
+		def safeVal = {
+			defVal, clos ->
 			def val = defVal
-			try {val = clos()} catch(e) {println e.message}
+			try {
+				val = clos()
+			} catch(e) {
+				println e.message
+			}
 			val
 		}
-		
+
 		//The last person left the server
-		def transitionToEmpty = {
+		def transitionToEmpty = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
-			def msg = "${new Date()}: $url is empty"  
+			def msg = "${new Date()}: ${server?.hostname} is now empty"
 			println "\n$msg"
 			//mailer.content = msg
 			//mailer.send()
 		}
-		
+
 		//Someone entered the empty server
-		def transitionToPopulated = {
+		def transitionToPopulated = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
-			showServer safeVal(null, {query.getStatus url})
+			showServer server
 			//mailer.content = "server $url is populated"
 			//mailer.send()
 		}
-		
+
 		//Server remains populated
-		def populated = {
-			println safeVal(null, {query.getStatus url})?.playerList?.
-				collect {"${it.isSpec()? '-': '+'}${it.name}"}
+		def populated = { server ->
+			println server?.hostname + " " + server?.playerList?.collect { "${showPlayer it}" }
 		}
-		
+
 		//Server remains empty
-		def empty = {
-			print "."
+		def empty = { server ->
+			println "${server?.hostname}..."
 		}
-		
+
 		def EMPTY = "empty"
-		def USERS = "users"		
+		def USERS = "users"
 		def actions = [
 			(EMPTY) : [
-				"foundUsers" : {transitionToPopulated(); USERS},
-				"none" : {empty(); EMPTY}],
+				"foundUsers" : {server -> transitionToPopulated(server); USERS},
+				"none" : {server -> empty(server); EMPTY}],
 			(USERS) : [
-				"foundUsers" : {populated(); USERS},
-				"none" : {transitionToEmpty(); EMPTY}]
+				"foundUsers" : {server -> populated(server); USERS},
+				"none" : {server -> transitionToEmpty(server); EMPTY}]
 		]
-			
-		for (def cur = EMPTY; true; ) {
-			def evt = safeVal(-1, {query.getInfo(url)?.playerCount}) > 0 ? "foundUsers" : "none"
-			cur = actions[cur][evt]()
+
+		for (def cur = EMPTY; loopCondition(); ) {
+			def server = safeVal(null, {query.getStatus(url)})
+			def evt = server?.playerCount > 0 ? "foundUsers" : "none"
+			cur = actions[cur][evt](server)
 			sleep(60000)
 		}
 	}
-	
+
 	static main(args) {
 		def cli = new CliBuilder(usage:'Possible options')
 		cli.h('This screen')
 		cli.f(args:1, argName:'filename', 'Read a file of lines with ip:port')
-		cli.s(args:1, argName:'ip:port', 'Specify the server ip:port')		
+		cli.i(args:1, argName:'iterations', 'Number of times to check the servers')
+		cli.s(args:1, argName:'ip:port', 'Specify the server ip:port')
+		cli.w(argName:'watch', 'Watch server forever. Has priority over number of iterations (-i)')
 		def options = cli.parse(args)
-		
+
 		if (options.h) {
 			cli.usage()
 			System.exit(0)
 		}
-		
-		def urls = ['198.23.132.34:26000']
-		
+
+		def waitForever = options.w
+		def urls
+
 		if (options.f) {
-			urls = new File(options.f).readLines()
+			urls = new File(options.f).readLines().findAll {ln -> ln && !ln.startsWith('#')}
 		}
 		else if (options.s) {
 			urls = [options.s]
 		}
-		
+		else {
+			urls = ['127.0.0.1:26000']
+		}		
+
 		def query = new ServerQuery()
-		
-		if (urls.size() > 1) {
-			urls.each {
-				try {showServer query.getStatus(it); println ''} catch(e) {print "${e.message}\n\n"} 
-			}
+		def loops = waitForever ? {true} : iterations(options.i ? options.i : 1)
+
+		def threadList = urls.inject([]) {lst, url -> lst << Thread.startDaemon{ watch(query, url, loops) }; lst}
+		if (waitForever) {
+			println "hit <enter> key to terminate"
+			System.in.read();
 		}
 		else {
-			println "hit <enter> key to terminate"
-			Thread.startDaemon { watchForever(query, urls.first()) }
-			System.in.read();
-			println "done"
+			println "waiting for server queries"
+			threadList.each { it.join() }
 		}
+		println "done"
 	}
 }
