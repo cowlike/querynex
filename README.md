@@ -12,9 +12,10 @@ java -jar querynex-xxx.jar -h
 usage: Possible options
  -w                Watch server forever. Has priority over number of
                    iterations (-i)
+ -b                Also show bots in the player list
  -f <filename>     Read a file of lines with ip:port
  -h                This screen
- -i <iterations>   Number of times to check the servers (default 1)
+ -i <iterations>   Number of times to check the servers
  -s <ip:port>      Specify the server ip:port
  </pre>
 

@@ -10,9 +10,9 @@ class Main {
 	}
 
 	static mailer = new MailSender(
-	'to':['myemailaccount@sample.com'],
-	'from':'nexbot@sample.com',
-	'subject':'Nex update')
+		'to':['myemailaccount@sample.com'],
+		'from':'nexbot@sample.com',
+		'subject':'Nex update')
 
 	static showServer(server) {
 		println "\n${new Date()}: ${server?.hostname}:"
@@ -28,7 +28,7 @@ class Main {
 		{ -> n-- > 0 }
 	}
 		
-	static watch(query, url, loopCondition) {
+	static watch(query, url, showBots, loopCondition) {
 		def safeVal = {
 			defVal, clos ->
 			def val = defVal
@@ -81,6 +81,9 @@ class Main {
 		for (def cur = EMPTY; loopCondition(); ) {
 			def server = safeVal(null, {query.getStatus(url)})
 			def evt = server?.playerCount > 0 ? "foundUsers" : "none"
+			if (server && !showBots) {
+				server.playerList = server.playerList.findAll { !it.isBot() }
+			}
 			cur = actions[cur][evt](server)
 			sleep(60000)
 		}
@@ -88,6 +91,7 @@ class Main {
 
 	static main(args) {
 		def cli = new CliBuilder(usage:'Possible options')
+		cli.b(argName:'show Bots', 'Also show bots in the player list')
 		cli.h('This screen')
 		cli.f(args:1, argName:'filename', 'Read a file of lines with ip:port')
 		cli.i(args:1, argName:'iterations', 'Number of times to check the servers')
@@ -100,6 +104,7 @@ class Main {
 			System.exit(0)
 		}
 
+		def showBots = options.b
 		def waitForever = options.w
 		def iters = options.i ? options.i as int : 1
 		def urls
@@ -116,7 +121,7 @@ class Main {
 
 		def query = new ServerQuery()
 		def threadList = urls.inject([]) {lst, url -> 
-			lst << Thread.startDaemon { watch(query, url, waitForever ? {true} : iterations(iters)) }; 
+			lst << Thread.startDaemon { watch(query, url, showBots, waitForever ? {true} : iterations(iters)) }; 
 			lst
 		}
 		
