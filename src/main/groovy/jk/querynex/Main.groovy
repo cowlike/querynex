@@ -28,7 +28,7 @@ class Main {
 		{ -> n-- > 0 }
 	}
 		
-	static watch(query, url, showBots, loopCondition) {
+	static watch(query, url, playerFilters, loopCondition) {
 		def safeVal = {
 			defVal, clos ->
 			def val = defVal
@@ -80,10 +80,14 @@ class Main {
 
 		for (def cur = EMPTY; loopCondition(); ) {
 			def server = safeVal(null, {query.getStatus(url)})
-			def evt = server?.playerCount > 0 ? "foundUsers" : "none"
-			if (server && !showBots) {
-				server.playerList = server.playerList.findAll { !it.isBot() }
+			
+			/*
+			 *  apply filters to player list. reduce the list to those elements passing all the filters
+			 */
+			if (server && playerFilters) {
+				server.playerList = server.playerList.findAll { el -> playerFilters.inject(true) { t, f -> t && f(el) } }
 			}
+			def evt = server?.playerList?.size() > 0 ? "foundUsers" : "none"
 			cur = actions[cur][evt](server)
 			sleep(60000)
 		}
@@ -91,6 +95,7 @@ class Main {
 
 	static main(args) {
 		def cli = new CliBuilder(usage:'Possible options')
+		cli.a(argName:'active only', 'Only show active players, not specs')
 		cli.b(argName:'show Bots', 'Also show bots in the player list')
 		cli.h('This screen')
 		cli.f(args:1, argName:'filename', 'Read a file of lines with ip:port')
@@ -98,13 +103,22 @@ class Main {
 		cli.s(args:1, argName:'ip:port', 'Specify the server ip:port')
 		cli.w(argName:'watch', 'Watch server forever. Has priority over number of iterations (-i)')
 		def options = cli.parse(args)
+		def playerFilters = []
 
 		if (options.h) {
 			cli.usage()
 			System.exit(0)
 		}
 
-		def showBots = options.b
+		if (options.a) {
+			playerFilters << { !it.isSpec() }
+		}
+		
+		//we filter out bots unless explicitly asked for with '-b'
+		if (!options.b) {
+			playerFilters << { !it.isBot() }
+		}
+		
 		def waitForever = options.w
 		def iters = options.i ? options.i as int : 1
 		def urls
@@ -121,7 +135,7 @@ class Main {
 
 		def query = new ServerQuery()
 		def threadList = urls.inject([]) {lst, url -> 
-			lst << Thread.startDaemon { watch(query, url, showBots, waitForever ? {true} : iterations(iters)) }; 
+			lst << Thread.startDaemon { watch(query, url, playerFilters, waitForever ? {true} : iterations(iters)) }; 
 			lst
 		}
 		
