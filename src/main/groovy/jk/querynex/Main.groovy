@@ -59,7 +59,8 @@ class Main {
 
 		//Server remains populated
 		def populated = { server ->
-			println server?.hostname + " " + server?.playerList?.collect { "${showPlayer it}" }
+			println server?.hostname + ": " + server?.map
+			server?.playerList?.each { println "\t${showPlayer it}" }
 		}
 
 		//Server remains empty
