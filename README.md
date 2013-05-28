@@ -32,4 +32,4 @@ Example for file input:
 198.58.96.171:26000
 </pre>
 
-[latest download](https://dl.dropbox.com/u/510237/nexuiz/querynex-0.0.10-jar-with-dependencies.jar)
+[latest download](https://dl.dropboxusercontent.com/u/510237/nexuiz/querynex-0.0.10-jar-with-dependencies.jar)
