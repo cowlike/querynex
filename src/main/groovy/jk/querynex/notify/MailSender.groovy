@@ -1,12 +1,20 @@
-package jk.querynex
+package jk.querynex.notify
 
 import javax.mail.*
 import javax.mail.internet.*
 import javax.activation.*
 
+/*
+ * example:
+	new MailSender(
+		'to':['myemailaccount@sample.com'],
+		'from':'nexbot@sample.com',
+		'subject':'Nex update')
+*/
+
 class MyAuth extends Authenticator {}
 
-class MailSender {
+class MailSender implements INotifier {
 	String user = null
 	String password = null
 	String host = 'smtp.gmail.com'
@@ -45,6 +53,12 @@ class MailSender {
 		def msg = init()
 		msg.setContent(content, type)
 		msgSend(msg)
+	}
+	
+	public void send(String msg) {
+		content = msg
+		type = 'text/plain'
+		send()
 	}
 	
 	public MimeMessage buildMultipart(Map files) {

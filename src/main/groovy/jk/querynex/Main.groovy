@@ -1,18 +1,11 @@
 package jk.querynex
 
+import jk.querynex.notify.*;
+
 class Main {
-	class MyAuth extends Authenticator {
-
-	}
-
 	static showPlayer(player) {
 		"${player.isSpec()? '-': '+'}${player.isBot()? '(bot)': ''}${player.name}"
 	}
-
-	static mailer = new MailSender(
-		'to':['myemailaccount@sample.com'],
-		'from':'nexbot@sample.com',
-		'subject':'Nex update')
 
 	static showServer(server) {
 		println "\n${new Date()}: ${server?.hostname}:"
@@ -28,7 +21,7 @@ class Main {
 		{ -> n-- > 0 }
 	}
 		
-	static watch(query, url, playerFilters, loopCondition) {
+	static watch(notifier, query, url, playerFilters, loopCondition) {
 		def safeVal = {
 			defVal, clos ->
 			def val = defVal
@@ -45,16 +38,14 @@ class Main {
 			java.awt.Toolkit.defaultToolkit.beep()
 			def msg = "${new Date()}: ${server?.hostname} is now empty"
 			println "\n$msg"
-			//mailer.content = msg
-			//mailer.send()
+			notifier.send(msg)
 		}
 
 		//Someone entered the empty server
 		def transitionToPopulated = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
 			showServer server
-			//mailer.content = "server $url is populated"
-			//mailer.send()
+			notifier.send("server $url is populated")
 		}
 
 		//Server remains populated
@@ -136,7 +127,8 @@ class Main {
 
 		def query = new ServerQuery()
 		def threadList = urls.inject([]) {lst, url -> 
-			lst << Thread.startDaemon { watch(query, url, playerFilters, waitForever ? {true} : iterations(iters)) }; 
+			lst << Thread.startDaemon { 
+				watch(new FakeNotifier(), query, url, playerFilters, waitForever ? {true} : iterations(iters)) }; 
 			lst
 		}
 		
