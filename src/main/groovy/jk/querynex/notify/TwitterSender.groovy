@@ -22,7 +22,7 @@ class TwitterSender implements INotifier {
 	}
 
 	Status update(status) {
-		twitter.updateStatus(status)
+		twitter.updateStatus(status.take(140)) //140 is max chars per tweet
 	}
 	
 	void send(String msg) {

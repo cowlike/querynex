@@ -7,8 +7,21 @@ class Main {
 		"${player.isSpec()? '-': '+'}${player.isBot()? '(bot)': ''}${player.name}"
 	}
 
+	static String curTime() {
+		new Date().format('M/d H:m')
+	}
+	
+	static String shortServerString(server) {
+		if (!server)
+			return "no results"
+			
+		def data = [curTime(), server.ip, server.map]
+		server.playerList.inject(data) {t,v -> t << showPlayer(v)}		
+		data.join ", "
+	}
+	
 	static showServer(server) {
-		println "\n${new Date()}: ${server?.hostname}:"
+		println "\n${curTime()}: ${server?.hostname}:"
 		println "\tmap [${server?.map}], max players [${server?.maxPlayers}]"
 
 		println "\tplayer list:"
@@ -36,7 +49,7 @@ class Main {
 		//The last person left the server
 		def transitionToEmpty = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
-			def msg = "${new Date()}: ${server?.hostname} is now empty"
+			def msg = "${curTime()}: ${server?.ip} is now empty"
 			println "\n$msg"
 			notifier.send(msg)
 		}
@@ -45,7 +58,7 @@ class Main {
 		def transitionToPopulated = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
 			showServer server
-			notifier.send("server $url is populated")
+			notifier.send(shortServerString(server))
 		}
 
 		//Server remains populated
@@ -92,8 +105,11 @@ class Main {
 		cli.h('This screen')
 		cli.f(args:1, argName:'filename', 'Read a file of lines with ip:port')
 		cli.i(args:1, argName:'iterations', 'Number of times to check the servers')
+		cli.n(args:1, argName:'notifier', 'use external notifier ("twitter" for twitter)mo')
 		cli.s(args:1, argName:'ip:port', 'Specify the server ip:port')
+		cli.t('publish a test notification and exit')
 		cli.w(argName:'watch', 'Watch server forever. Has priority over number of iterations (-i)')
+		
 		def options = cli.parse(args)
 		def playerFilters = []
 
@@ -102,6 +118,24 @@ class Main {
 			System.exit(0)
 		}
 
+		def notifier
+		switch (options.n) {
+			case 'twitter': 
+				notifier = new TwitterSender()
+				break
+			case 'console':
+				notifier = ['send':{ println it }] as INotifier
+				break
+			default:
+				notifier = ['send':{}] as INotifier
+				break
+		}
+		
+		if (options.t) {
+			notifier.send("${curTime()}: test msg")
+			System.exit(0)
+		}
+		
 		if (options.a) {
 			playerFilters << { !it.isSpec() }
 		}
@@ -128,7 +162,7 @@ class Main {
 		def query = new ServerQuery()
 		def threadList = urls.inject([]) {lst, url -> 
 			lst << Thread.startDaemon { 
-				watch(new FakeNotifier(), query, url, playerFilters, waitForever ? {true} : iterations(iters)) }; 
+				watch(notifier, query, url, playerFilters, waitForever ? {true} : iterations(iters)) }; 
 			lst
 		}
 		
