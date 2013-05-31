@@ -5,6 +5,8 @@ Simple Groovy app to query Nexuiz servers. I am playing with some ideas to have 
 
 The Tortilla code is very nice but I just wanted the parts to query the server since I'm not really interested in a GUI tool. His code really is quite nice though.
 
+Made some changes to publish to a "notifier" which currently only includes twitter or console. Default is to throw away these publish messages. Probably should consolidate console publish with the regular console output! Next time...
+
 usage
 =====
 java -jar querynex-xxx.jar -h
@@ -32,4 +34,4 @@ Example for file input:
 198.58.96.171:26000
 </pre>
 
-[latest download](https://dl.dropboxusercontent.com/u/510237/nexuiz/querynex-0.0.10-jar-with-dependencies.jar)
+[latest download](https://dl.dropboxusercontent.com/u/510237/nexuiz/querynex-0.0.12-jar-with-dependencies.jar)
