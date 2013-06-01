@@ -8,14 +8,14 @@ class Main {
 	}
 
 	static String curTime() {
-		new Date().format('M/d H:m')
+		new Date().format('MM/dd HHmm')
 	}
 	
 	static String shortServerString(server) {
 		if (!server)
 			return "no results"
 			
-		def data = [curTime(), server.ip, server.map]
+		def data = [curTime(), server.ip.split(':')[0], server.map]
 		server.playerList.inject(data) {t,v -> t << showPlayer(v)}		
 		data.join ", "
 	}
@@ -35,6 +35,8 @@ class Main {
 	}
 		
 	static watch(notifier, query, url, playerFilters, loopCondition) {
+		def curMap = null
+		
 		def safeVal = {
 			defVal, clos ->
 			def val = defVal
@@ -49,13 +51,14 @@ class Main {
 		//The last person left the server
 		def transitionToEmpty = { server ->
 			java.awt.Toolkit.defaultToolkit.beep()
-			def msg = "${curTime()}: ${server?.ip} is now empty"
+			def msg = "${curTime()}: ${server?.ip?.split(':')[0]} is now empty"
 			println "\n$msg"
 			notifier.send(msg)
 		}
 
 		//Someone entered the empty server
 		def transitionToPopulated = { server ->
+			curMap = server?.map
 			java.awt.Toolkit.defaultToolkit.beep()
 			showServer server
 			notifier.send(shortServerString(server))
@@ -63,8 +66,13 @@ class Main {
 
 		//Server remains populated
 		def populated = { server ->
-			println server?.hostname + ": " + server?.map
+			def map = server?.map
+			println server?.hostname + ": " + map
 			server?.playerList?.each { println "\t${showPlayer it}" }
+			if (map != curMap) {
+				curMap = map
+				notifier.send(shortServerString(server))
+			}
 		}
 
 		//Server remains empty
@@ -93,7 +101,7 @@ class Main {
 				server.playerList = server.playerList.findAll { el -> playerFilters.inject(true) { t, f -> t && f(el) } }
 			}
 			def evt = server?.playerList?.size() > 0 ? "foundUsers" : "none"
-			cur = actions[cur][evt](server)
+			cur = safeVal(cur, {actions[cur][evt](server)})
 			sleep(60000)
 		}
 	}

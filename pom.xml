@@ -4,7 +4,7 @@
 
 	<groupId>jk</groupId>
 	<artifactId>querynex</artifactId>
-	<version>0.0.12</version>
+	<version>0.0.13</version>
 	<packaging>jar</packaging>
 
 	<name>querynex</name>
