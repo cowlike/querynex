@@ -175,13 +175,12 @@ class Main {
 		}
 		
 		if (waitForever) {
-			println "hit <enter> key to terminate"
-			System.in.read();
+			println "hit <ctl>-c key to terminate"
 		}
 		else {
 			println "waiting for $iters server quer${iters > 1 ? 'ies' : 'y'}"
-			threadList.each { it.join() }
 		}
+		threadList.each { it.join() }
 		println "done"
 	}
 }
