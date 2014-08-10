@@ -80,18 +80,16 @@ class Main {
 			println "${server?.hostname}..."
 		}
 
-		def EMPTY = "empty"
-		def USERS = "users"
 		def actions = [
-			(EMPTY) : [
-				"foundUsers" : {server -> transitionToPopulated(server); USERS},
-				"none" : {server -> empty(server); EMPTY}],
-			(USERS) : [
-				"foundUsers" : {server -> populated(server); USERS},
-				"none" : {server -> transitionToEmpty(server); EMPTY}]
+			(Population.EMPTY) : [
+				(Population.USERS) : {server -> transitionToPopulated(server); Population.USERS},
+				(Population.EMPTY) : {server -> empty(server); Population.EMPTY}],
+			(Population.USERS) : [
+				(Population.USERS) : {server -> populated(server); Population.USERS},
+				(Population.EMPTY) : {server -> transitionToEmpty(server); Population.EMPTY}]
 		]
 
-		for (def cur = EMPTY; loopCondition(); ) {
+		for (def cur = Population.EMPTY; loopCondition(); ) {
 			def server = safeVal(null, {query.getStatus(url)})
 			
 			/*
@@ -100,7 +98,7 @@ class Main {
 			if (server && playerFilters) {
 				server.playerList = server.playerList.findAll { el -> playerFilters.inject(true) { t, f -> t && f(el) } }
 			}
-			def evt = server?.playerList?.size() > 0 ? "foundUsers" : "none"
+			def evt = server?.playerList?.size() > 0 ? Population.USERS : Population.EMPTY
 			cur = safeVal(cur, {actions[cur][evt](server)})
 			sleep(60000)
 		}
