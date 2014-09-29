@@ -26,4 +26,19 @@ class Server {
 	public void setQcstatus(final String string) {
 		gameType = string.split(':')[0];
 	}
+
+	String toString() {
+		"""${hostname}
+    map [$map], max players [$maxPlayers]
+    players: $playerList"""
+	}
+
+	String toShortString() {
+		def data = [
+			ip.split(':')[0],
+			map
+		]
+		playerList.inject(data) {t,v -> t << v}
+		data.join ", "
+	}
 }

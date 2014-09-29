@@ -19,7 +19,9 @@ usage: Possible options
  -f <filename>     Read a file of lines with ip:port
  -h                This screen
  -i <iterations>   Number of times to check the servers
+ -n <notifier>     use external notifier ("twitter" for twitter)
  -s <ip:port>      Specify the server ip:port
+ -t                publish a test notification and exit
 
 Passing no arguments will query 127.0.0.1:26000 a single time.
 
