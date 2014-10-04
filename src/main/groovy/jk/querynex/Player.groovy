@@ -34,4 +34,9 @@ public class Player {
 	String toString() {
 		"${isSpec()? '-': '+'}${isBot()? '(bot)': ''}${name}"
 	}
+	
+	public boolean equals(Object other) {
+		other && this.class == other.class &&
+				this.name == ((Player) other).name
+	}
 }

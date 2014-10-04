@@ -63,3 +63,4 @@ class AbstractQuery {
         return response;
     }
 }
+

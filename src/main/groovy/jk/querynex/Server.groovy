@@ -28,17 +28,24 @@ class Server {
 	}
 
 	String toString() {
+		def data = [hostname, map]
+		playerList.inject(data) { t,v ->
+			t << v
+		}
+		data.join ", "
+	}
+
+	String toLongString() {
 		"""${hostname}
     map [$map], max players [$maxPlayers]
     players: $playerList"""
 	}
 
-	String toShortString() {
-		def data = [
-			ip.split(':')[0],
-			map
-		]
-		playerList.inject(data) {t,v -> t << v}
-		data.join ", "
+	public boolean isEmpty() { playerList.isEmpty() }
+	
+	public boolean equals(Object other) {
+		other && this.class == other.class &&
+				this.map == ((Server) other).map &&
+				this.playerList == ((Server) other).playerList
 	}
 }
