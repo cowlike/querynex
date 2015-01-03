@@ -13,7 +13,7 @@ class Main {
 	}
 
 	static iterations(int n) {
-		{ -> n-- > 0 }
+		{ -> --n > 0 }
 	}
 
 	/*
@@ -30,6 +30,11 @@ class Main {
 		val
 	}
 
+	/*
+	 * The loopCondition() test is done at the end of the loop
+	 * and should return true if we want to iterate again. Returning
+	 * false exits the loop.
+	 */
 	static watch(List<INotifier> notifiers,
 			ServerQuery query,
 			String url,
@@ -79,7 +84,10 @@ class Main {
 				(Population.EMPTY) : {server -> transitionToEmpty(server); Population.EMPTY}]
 		]
 
-		for (def cur = Population.EMPTY; loopCondition(); ) {
+		/*
+		 * We'll break out of this inside the loop so we don't sleep unnecessarily
+		 */
+		for (def cur = Population.EMPTY; ; ) {
 			Server server = safeVal(null, {query.getStatus(url)})
 
 			/*
@@ -90,6 +98,11 @@ class Main {
 			}
 			def evt = server?.isEmpty() ? Population.EMPTY : Population.USERS
 			cur = safeVal(cur, {actions[cur][evt](server)})
+			
+			//keep looping?
+			if (! loopCondition()) {
+				break
+			}
 			sleep(60000)
 		}
 	}
