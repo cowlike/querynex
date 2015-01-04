@@ -4,7 +4,7 @@
 
 	<groupId>jk</groupId>
 	<artifactId>querynex</artifactId>
-	<version>0.0.17</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>querynex</name>
@@ -61,6 +61,8 @@
 					<archive>
 						<manifest>
 							<mainClass>jk.querynex.Main</mainClass>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>
 					</archive>
 					<descriptorRefs>

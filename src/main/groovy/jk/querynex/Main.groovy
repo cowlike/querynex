@@ -109,6 +109,8 @@ class Main {
 
 	static main(args) {
 		List<INotifier> notifiers = []
+		
+		println "querynex ${Main.package.implementationVersion}"
 
 		def cli = new CliBuilder(usage:'Possible options')
 		cli.a(argName:'active only', 'Only show active players, not specs')
