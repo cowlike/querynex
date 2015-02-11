@@ -28,7 +28,7 @@ class Server {
 	}
 
 	String toString() {
-		def data = [hostname, map]
+		def data = [map]
 		playerList.inject(data) { t,v ->
 			t << v
 		}
