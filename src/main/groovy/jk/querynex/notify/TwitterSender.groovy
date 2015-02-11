@@ -22,7 +22,13 @@ class TwitterSender implements INotifier {
 	}
 
 	Status update(status) {
-		twitter.updateStatus(status.take(140)) //140 is max chars per tweet
+		try {
+			twitter.updateStatus(status.take(135)) //140 is max chars per tweet
+		}
+		catch (Exception e) {
+			println ("failed to update: (${status.take(139)}) -> $e.message")
+			e.printStackTrace()
+		}
 	}
 	
 	void send(String msg) {

@@ -32,7 +32,7 @@ public class Player {
 
 	@Override
 	String toString() {
-		"${isSpec()? '-': '+'}${isBot()? '(bot)': ''}${name}"
+		"${isSpec()? '-': ''}${isBot()? '(bot)': ''}${name}"
 	}
 	
 	public boolean equals(Object other) {
