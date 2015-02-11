@@ -34,7 +34,7 @@ class PlayerTest extends GroovyTestCase {
 	}
 
 	public void testToString() {
-		assert(playerList.toString() == '[+(bot)bot1, +(bot)bot2, +jackson, -jake]')
+		assert(playerList.toString() == '[(bot)bot1, (bot)bot2, jackson, -jake]')
 	}
 
 }

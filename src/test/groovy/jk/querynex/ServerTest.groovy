@@ -36,12 +36,12 @@ class ServerTest extends GroovyTestCase {
 		def s = new Server('hostname':'mojo', 'map':'q3dm17ish', 'maxPlayers':20, 'playerList':playerList)
 		assert(s.toLongString() == """mojo
     map [q3dm17ish], max players [20]
-    players: [+(bot)bot1, +(bot)bot2, +jackson, -jake]""")
+    players: [(bot)bot1, (bot)bot2, jackson, -jake]""")
 	}
 
 	public void testToString() {
 		def s = new Server('hostname':'mojo', 'map':'q3dm17ish', 'maxPlayers':20, 'playerList':playerList, 'ip':'10.0.0.5:24000')
-		assert(s.toString() == 'mojo, q3dm17ish, +(bot)bot1, +(bot)bot2, +jackson, -jake')
+		assert(s.toString() == 'q3dm17ish, (bot)bot1, (bot)bot2, jackson, -jake')
 	}
 
 	public void testEquals() {
