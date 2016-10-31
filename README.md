@@ -27,13 +27,13 @@ Passing no arguments will query 127.0.0.1:26000 a single time.
 
 Example for file input:
 <pre>
-# format is ip:port
+# format is nick:ip:port
 # Empty lines or lines starting with '#' are ignored.
 
-# 213.141.136.246:26003
-# 94.23.20.72:26000
+# funserver:213.141.136.246:26003
+# foo:94.23.20.72:26000
 
-198.58.96.171:26000
+mojo:198.58.96.171:26000
 </pre>
 
 [latest download](https://dl.dropboxusercontent.com/u/510237/nexuiz/querynex-all.jar)
