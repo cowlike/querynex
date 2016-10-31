@@ -49,19 +49,21 @@ public class ServerQuery extends AbstractQuery {
      */
     public Server getStatus(final String ipStr) {
         final String[] ip = ipStr.split(":");
-        final int port = Integer.parseInt(ip[1]);
+		final String nick = ip[0]
+		final String addr = ip[1]
+        final int port = Integer.parseInt(ip[2]);
         byte[] response = null;
         Server server = null;
 
         for (int attempts = 0; attempts < ATTEMPTS; attempts++) {
-			response = getInfo(ip[0], port, "xxxxgetstatus");
+			response = getInfo(addr, port, "xxxxgetstatus");
 
             if (response != null) {
                 try {
 					String responseLines = new String(response, encoding); 
                     responseLines = responseLines.substring(responseLines.indexOf('\\'));
                     String[] lines = responseLines.split("\n");
-                    server = getServerFromResponse(lines[0], ipStr);
+                    server = getServerFromResponse(lines[0], ipStr, nick);
                     ArrayList<Player> players = new ArrayList<Player>(server.getPlayerCount());
                     for (int i = 1; i < lines.length - 1; i++) {
                         players.add(getPlayerFromResponse(lines[i]));
@@ -109,7 +111,7 @@ public class ServerQuery extends AbstractQuery {
      * @param ipStr The address of the server.
      * @return Server which is created.
      */
-    private Server getServerFromResponse(final String queryResult, final String ipStr) {
+    private Server getServerFromResponse(final String queryResult, final String ipStr, final String nick) {
         final String[] serverData = queryResult.split("\\\\");
         final Server server = new Server();
         server.setGame(serverData[2]);
@@ -129,6 +131,7 @@ public class ServerQuery extends AbstractQuery {
         }
         server.setPing(ping);
         server.setIp(ipStr);
+		server.nick = nick;
         return server;
     }
 }

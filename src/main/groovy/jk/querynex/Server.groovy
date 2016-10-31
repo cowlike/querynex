@@ -7,6 +7,7 @@ import java.util.List;
 class Server {
 	String ip;
 	String hostname;
+	String nick = '';
 	String map;
 	String game;
 	String gameVersion;
@@ -28,7 +29,7 @@ class Server {
 	}
 
 	String toString() {
-		def data = [map]
+		def data = ["${nick}:${map}"]
 		playerList.inject(data) { t,v ->
 			t << v
 		}

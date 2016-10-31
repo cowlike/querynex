@@ -170,10 +170,10 @@ class Main {
 			urls = new File(options.f).readLines().findAll {ln -> ln && !ln.startsWith('#')}
 		}
 		else if (options.s) {
-			urls = [options.s]
+			urls = ['S:' + options.s]
 		}
 		else {
-			urls = ['127.0.0.1:26000']
+			urls = ['S:127.0.0.1:26000']
 		}
 
 		def query = new ServerQuery()
