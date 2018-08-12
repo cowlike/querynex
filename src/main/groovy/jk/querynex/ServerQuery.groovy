@@ -88,8 +88,8 @@ public class ServerQuery extends AbstractQuery {
         final String[] playerData = queryResult.split(" ");
         
         final Player player = new Player();
-        player.setScore(playerData[0] as int);
-        player.setPing(playerData[1] as int);
+        player.setScore(Util.safeInt(playerData[0], 0));
+        player.setPing(Util.safeInt(playerData[1], -999));
 		/*
 		 * This was in the original, commented out. needs research (I added the "as int" -jk)
 		 */
@@ -117,10 +117,10 @@ public class ServerQuery extends AbstractQuery {
         server.setGame(serverData[2]);
         server.setModname(serverData[4]);
         server.setGameVersion(serverData[6]);
-        server.setMaxPlayers(serverData[8] as int);
-        server.setPlayerCount(serverData[10] as int);
+        server.setMaxPlayers(Util.safeInt(serverData[8], -999));
+        server.setPlayerCount(Util.safeInt(serverData[10], -999));
         if (serverData[11].equals("bots")) {
-            server.setBotCount(Integer.parseInt(serverData[12]));
+            server.setBotCount(Util.safeInt(serverData[12], -999));
             server.setMap(serverData[14]);
             server.setHostname(serverData[16]);
             server.setQcstatus(serverData[20]);
