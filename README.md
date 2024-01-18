@@ -1,4 +1,4 @@
-querynex
+querynex 
 ========
 
 Simple Groovy app to query Nexuiz servers. I am playing with some ideas to have a simple notifier for when players join a server I'm interested in. I started with [this code](https://code.google.com/p/tortilla/) as my base, which I found when I was searching online for docs on the server protocol. 
